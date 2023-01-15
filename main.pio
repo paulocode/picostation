@@ -1,0 +1,200 @@
+.program cpu_clk
+
+.wrap_target
+    set pins 0
+    set pins 1
+.wrap
+% c-sdk {
+
+static inline void cpu_clk_program_init(PIO pio, uint8_t sm, uint8_t offset, uint8_t cpu_clk_pin) {
+    pio_gpio_init(pio, cpu_clk_pin);
+    pio_sm_set_consecutive_pindirs(pio, sm, cpu_clk_pin, 1, true);
+    pio_sm_config sm_config = cpu_clk_program_get_default_config(offset);
+    sm_config_set_set_pins(&sm_config, cpu_clk_pin, 1);
+    pio_sm_init(pio, sm, offset, &sm_config);
+}
+
+%}
+
+.program scor
+
+.wrap_target
+    set pins 0 
+    pull block
+    set y,4
+loopy:
+    set x,31
+loopx:
+    set pins 1 [30]
+    set pins 1 [24]
+    jmp x-- loopx
+    jmp y-- loopy
+.wrap
+% c-sdk {
+
+static inline void scor_program_init(PIO pio, uint8_t sm, uint8_t offset, 
+    uint8_t scor_pin) {
+    pio_gpio_init(pio, scor_pin);
+    pio_sm_set_consecutive_pindirs(pio, sm, scor_pin, 1, true);
+
+    pio_sm_config sm_config = scor_program_get_default_config(offset);
+    sm_config_set_set_pins(&sm_config, scor_pin, 1);
+    sm_config_set_clkdiv(&sm_config, 2);
+    pio_sm_init(pio, sm, offset, &sm_config);
+}
+
+%}
+
+.program mechacon
+
+.wrap_target
+    set x, 7
+loop:
+    wait 0 pin 1
+    wait 1 pin 1
+    in pins 1
+    jmp x-- loop
+    push noblock
+.wrap
+% c-sdk {
+
+static inline void mechacon_program_init(PIO pio, uint8_t sm, uint8_t offset, 
+    uint8_t mechacon_pin_base) {
+    pio_gpio_init(pio, mechacon_pin_base);
+    pio_gpio_init(pio, mechacon_pin_base+1);
+    pio_sm_set_consecutive_pindirs(pio, sm, mechacon_pin_base, 2, false);
+    
+    pio_sm_config sm_config = mechacon_program_get_default_config(offset);
+    sm_config_set_in_pins(&sm_config, mechacon_pin_base);
+    sm_config_set_jmp_pin(&sm_config, mechacon_pin_base+1);
+    sm_config_set_fifo_join(&sm_config, PIO_FIFO_JOIN_RX);
+    sm_config_set_in_shift(&sm_config, false, false, 0);
+    pio_sm_init(pio, sm, offset, &sm_config);
+}
+
+%}
+
+.program soct
+
+.wrap_target
+    set x, 16
+    pull block
+loop:
+    wait 0 pin 0 
+    out pins, 1
+    wait 1 pin 0 
+    jmp x-- loop
+    push block
+.wrap
+
+% c-sdk {
+
+static inline void soct_program_init(PIO pio, uint8_t sm, uint8_t offset, 
+    uint8_t sqso_pin, uint8_t sqck_pin) {
+    pio_gpio_init(pio, sqso_pin);
+    pio_gpio_init(pio, sqck_pin);
+    pio_sm_set_consecutive_pindirs(pio, sm, sqso_pin, 1, true);
+    pio_sm_set_consecutive_pindirs(pio, sm, sqck_pin, 1, false);
+    
+    pio_sm_config sm_config = soct_program_get_default_config(offset);
+    sm_config_set_out_pins(&sm_config, sqso_pin, 1);
+    sm_config_set_in_pins(&sm_config, sqck_pin);
+    pio_sm_init(pio, sm, offset, &sm_config);
+}
+
+%}
+
+.program subq
+
+    set pins 1
+    set y, 2
+loop:
+    set x, 31
+    pull block
+loop_dword:
+    wait 0 pin 0 
+    out pins, 1
+    wait 1 pin 0 
+    jmp x-- loop_dword
+    jmp y-- loop
+    
+    push block
+    
+hang:
+    jmp hang
+
+% c-sdk {
+
+static inline void subq_program_init(PIO pio, uint8_t sm, uint8_t offset, 
+    uint8_t sqso_pin, uint8_t sqck_pin) {
+    pio_gpio_init(pio, sqso_pin);
+    pio_gpio_init(pio, sqck_pin);
+    pio_sm_set_consecutive_pindirs(pio, sm, sqso_pin, 1, true);
+    pio_sm_set_consecutive_pindirs(pio, sm, sqck_pin, 1, false);
+    
+    pio_sm_config sm_config = subq_program_get_default_config(offset);
+    sm_config_set_out_pins(&sm_config, sqso_pin, 1);
+    sm_config_set_set_pins(&sm_config, sqso_pin, 1);
+    sm_config_set_in_pins(&sm_config, sqck_pin);
+    pio_sm_init(pio, sm, offset, &sm_config);
+}
+
+%}
+
+.program i2s_data
+
+.wrap_target
+    set x, 7
+    pull noblock
+    loop:    
+    out pins, 1
+    set pins, 0 [14]
+    set pins, 1 [14]
+    out pins, 1
+    set pins, 0 [14]
+    set pins, 1 [14]
+    out pins, 1
+    set pins, 0 [14]
+    set pins, 1 [15]
+    jmp x-- loop
+    nop [4]
+    irq 0 
+.wrap
+    
+% c-sdk {
+static inline void i2s_data_program_init(PIO pio, uint8_t sm, uint8_t offset, uint8_t data_clock_pin) {
+    pio_gpio_init(pio, data_clock_pin);
+    pio_gpio_init(pio, data_clock_pin+1);
+    pio_sm_set_consecutive_pindirs(pio, sm, data_clock_pin, 2, true);
+    
+    pio_sm_config sm_config = i2s_data_program_get_default_config(offset);
+    sm_config_set_set_pins(&sm_config, data_clock_pin, 1);
+    sm_config_set_out_pins(&sm_config, data_clock_pin+1, 1);
+    sm_config_set_fifo_join(&sm_config, PIO_FIFO_JOIN_TX);
+    sm_config_set_clkdiv(&sm_config, 2);
+    
+    pio_sm_init(pio, sm, offset, &sm_config);
+}
+
+%}
+
+.program i2s_lrck
+
+start:
+    set pins 1 
+    wait 1 irq 0
+    set pins 0 
+    wait 1 irq 0
+    jmp start
+% c-sdk {
+
+static inline void i2s_lrck_program_init(PIO pio, uint8_t sm, uint8_t offset, uint8_t lrck_pin) {
+    pio_gpio_init(pio, lrck_pin);
+    pio_sm_set_consecutive_pindirs(pio, sm, lrck_pin, 1, true);
+    
+    pio_sm_config sm_config = i2s_data_program_get_default_config(offset);
+    sm_config_set_set_pins(&sm_config, lrck_pin, 1);
+
+    pio_sm_init(pio, sm, offset, &sm_config);
+}
+%}
