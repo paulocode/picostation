@@ -240,26 +240,36 @@ int main() {
                 }
             }
         } else if (SENS_data[SENS_GFS]) {
-            if (sector_sending == sector) {
-                if (!subq_delay) {
-                    sector++;
-					if ((sector - sector_for_track_update) >= sectors_per_track_i) {
-						sector_for_track_update = sector;
-						track++;
-						sectors_per_track_i = sectors_per_track(track);
-					}
-                    subq_delay = 1;
-                    subq_delay_time = time_us_64();
+            if (sector < 4650 && (time_us_64() - subq_start_time) > 13333) {
+                subq_start_time = time_us_64();
+                start_subq();
+                sector++;
+                if ((sector - sector_for_track_update) >= sectors_per_track_i) {
+                    sector_for_track_update = sector;
+                    track++;
+                    sectors_per_track_i = sectors_per_track(track);
+                }
+            } else {
+                if (sector_sending == sector) {
+                    if (!subq_delay) {
+                        sector++;
+                        if ((sector - sector_for_track_update) >= sectors_per_track_i) {
+                            sector_for_track_update = sector;
+                            track++;
+                            sectors_per_track_i = sectors_per_track(track);
+                        }
+                        subq_delay = 1;
+                        subq_delay_time = time_us_64();
+                    }
+                }
+
+                if (subq_delay && (sector >= 4650 && (time_us_64() - subq_delay_time) > 3333)) {
+                    subq_delay = 0;
+                    start_subq();
                 }
             }
-
-            if (subq_delay && (time_us_64() - subq_delay_time) > 3333) {
-                subq_start_time = time_us_64();
-                subq_delay = 0;
-                start_subq();
-            }
         } else {
-			subq_delay = 0;
+            subq_delay = 0;
         }
     }
 
