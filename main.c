@@ -112,7 +112,7 @@ void initialize() {
 
     gpio_set_dir(RESET, GPIO_OUT);
     gpio_put(RESET,0);
-    sleep_ms(5000);
+    sleep_ms(300);
     gpio_set_dir(RESET, GPIO_IN);
 
     while((time_us_64() - startTime) < 30000) {
