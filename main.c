@@ -243,7 +243,11 @@ int main() {
             if (sector_sending == sector) {
                 if (!subq_delay) {
                     sector++;
-
+					if ((sector - sector_for_track_update) >= sectors_per_track_i) {
+						sector_for_track_update = sector;
+						track++;
+						sectors_per_track_i = sectors_per_track(track);
+					}
                     subq_delay = 1;
                     subq_delay_time = time_us_64();
                 }
@@ -254,17 +258,8 @@ int main() {
                 subq_delay = 0;
                 start_subq();
             }
-
-            if ((sector - sector_for_track_update) >= sectors_per_track_i) {
-                sector_for_track_update = sector;
-                track++;
-                sectors_per_track_i = sectors_per_track(track);
-            }
         } else {
-            pio_sm_set_enabled(pio1, SUBQ_SM, false);
-            gpio_init(SQSO);
-            gpio_set_dir(SQSO, GPIO_OUT);
-            gpio_put(SQSO, 0);
+			subq_delay = 0;
         }
     }
 
