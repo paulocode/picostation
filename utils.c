@@ -23,7 +23,7 @@ extern inline uint32_t reverseBits(uint32_t num, int bits) {
 }
 
 extern inline int track_to_sector(int track) {
-    return pow(track, 2) * 0.00031499 + track * 9.357516535 + (rand()%5);
+    return pow(track, 2) * 0.00031499 + track * 9.357516535;
 }
 
 extern inline int sectors_per_track(int track) {
