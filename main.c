@@ -223,7 +223,7 @@ int main() {
                 sector = track_to_sector(track);
                 sector_for_track_update = sector;
 
-                if ((track - original_track) == count_track) {
+                if ((track - original_track) >= count_track) {
                     original_track = track;
                     SENS_data[SENS_COUT] = !SENS_data[SENS_COUT];
                 }
@@ -234,7 +234,7 @@ int main() {
                 track--;
                 sector = track_to_sector(track);
                 sector_for_track_update = sector;
-                if ((original_track - track) == count_track) {
+                if ((original_track - track) >= count_track) {
                     original_track = track;
                     SENS_data[SENS_COUT] = !SENS_data[SENS_COUT];
                 }
