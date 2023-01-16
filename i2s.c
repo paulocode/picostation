@@ -221,9 +221,7 @@ void i2s_data_thread() {
                 }
             }
 
-            goto normal_end;
 abort_psnee:
-normal_end:
             gpio_put(SCEX_DATA, 1);
             psneeTimer = time_us_64();
             printf("-SCEX\n");

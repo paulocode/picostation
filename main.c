@@ -112,7 +112,7 @@ void initialize() {
 
     gpio_set_dir(RESET, GPIO_OUT);
     gpio_put(RESET,0);
-    sleep_ms(5000);
+    sleep_ms(300);
     gpio_set_dir(RESET, GPIO_IN);
 
     while((time_us_64() - startTime) < 30000) {
@@ -223,7 +223,7 @@ int main() {
                 sector = track_to_sector(track);
                 sector_for_track_update = sector;
 
-                if ((track - original_track) == count_track) {
+                if ((track - original_track) >= count_track) {
                     original_track = track;
                     SENS_data[SENS_COUT] = !SENS_data[SENS_COUT];
                 }
@@ -234,37 +234,42 @@ int main() {
                 track--;
                 sector = track_to_sector(track);
                 sector_for_track_update = sector;
-                if ((original_track - track) == count_track) {
+                if ((original_track - track) >= count_track) {
                     original_track = track;
                     SENS_data[SENS_COUT] = !SENS_data[SENS_COUT];
                 }
             }
         } else if (SENS_data[SENS_GFS]) {
-            if (sector_sending == sector) {
-                if (!subq_delay) {
-                    sector++;
+            if (sector < 4650 && (time_us_64() - subq_start_time) > 13333) {
+                subq_start_time = time_us_64();
+                start_subq();
+                sector++;
+                if ((sector - sector_for_track_update) >= sectors_per_track_i) {
+                    sector_for_track_update = sector;
+                    track++;
+                    sectors_per_track_i = sectors_per_track(track);
+                }
+            } else {
+                if (sector_sending == sector) {
+                    if (!subq_delay) {
+                        sector++;
+                        if ((sector - sector_for_track_update) >= sectors_per_track_i) {
+                            sector_for_track_update = sector;
+                            track++;
+                            sectors_per_track_i = sectors_per_track(track);
+                        }
+                        subq_delay = 1;
+                        subq_delay_time = time_us_64();
+                    }
+                }
 
-                    subq_delay = 1;
-                    subq_delay_time = time_us_64();
+                if (subq_delay && (sector >= 4650 && (time_us_64() - subq_delay_time) > 3333)) {
+                    subq_delay = 0;
+                    start_subq();
                 }
             }
-
-            if (subq_delay && (time_us_64() - subq_delay_time) > 3333) {
-                subq_start_time = time_us_64();
-                subq_delay = 0;
-                start_subq();
-            }
-
-            if ((sector - sector_for_track_update) >= sectors_per_track_i) {
-                sector_for_track_update = sector;
-                track++;
-                sectors_per_track_i = sectors_per_track(track);
-            }
         } else {
-            pio_sm_set_enabled(pio1, SUBQ_SM, false);
-            gpio_init(SQSO);
-            gpio_set_dir(SQSO, GPIO_OUT);
-            gpio_put(SQSO, 0);
+            subq_delay = 0;
         }
     }
 

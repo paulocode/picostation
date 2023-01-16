@@ -30,7 +30,6 @@ void printf_subq(uint8_t *subqdata) {
 }
 
 static inline void send_subq(uint8_t *subqdata) {
-    pio_sm_put_blocking(pio1, SCOR_SM, 1);
     subq_program_init(pio1, SUBQ_SM, subq_offset, SQSO, SQCK);
     pio_sm_set_enabled(pio1, SUBQ_SM, true);
 
@@ -49,6 +48,9 @@ static inline void send_subq(uint8_t *subqdata) {
     pio_sm_put_blocking(pio1, SUBQ_SM, reverseBits(sub1,32));
     pio_sm_put_blocking(pio1, SUBQ_SM, reverseBits(sub2,32));
     pio_sm_put_blocking(pio1, SUBQ_SM, reverseBits(sub3,32));
+	
+    pio_sm_put_blocking(pio1, SCOR_SM, 1);
+
 }
 
 void start_subq() {
