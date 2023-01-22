@@ -4,7 +4,7 @@
 <a href="https://twitter.com/paulo7x8/status/1602007862733312000"><img src="https://i.ibb.co/9hT2GQc/pico-tweet.jpg" alt="original tweet" height="400"/></a>
 
 ### Supported models:
-- PU-8  (SCPH100X)
+- PU-8  (SCPH100X) (untested)
 - PU-18 (SCPH55XX)
 
 ### Compatibility
