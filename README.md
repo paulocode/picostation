@@ -29,6 +29,6 @@
 ### Links
 - PCB: https://github.com/paulocode/picostation_pcb
 - FAQ: https://github.com/paulocode/picostation_faq
-- Alternative solder points / checking connection: https://mmmonkey.co.uk/xstation-sony-playstation-install-notes-and-pinout/
+- Slow Solder Board (SSB) solder points / checking connection: https://mmmonkey.co.uk/xstation-sony-playstation-install-notes-and-pinout/
 - How to compile (Windows): https://shawnhymel.com/2096/how-to-set-up-raspberry-pi-pico-c-c-toolchain-on-windows-with-vs-code/
 - PCB pinout: <a href="https://ibb.co/mDNDc8C"><img src="https://i.ibb.co/mDNDc8C/pinout.png" alt="pinout" border="0"></a>
