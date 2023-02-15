@@ -53,7 +53,7 @@ void i2s_data_thread() {
     sd_card_t *pSD;
     int bytes;
     char buf[128];
-    ushort *cd_samples[SECTOR_CACHE];
+    uint16_t *cd_samples[SECTOR_CACHE];
     uint16_t CD_scrambling_key[1176] = { 0 };
     int key = 1;
     int logical_track = 0;
