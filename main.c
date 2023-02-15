@@ -71,7 +71,7 @@ void initialize() {
     gpio_init(LRCK);
 
     gpio_set_dir(SCEX_DATA, GPIO_OUT);
-    gpio_put(SCEX_DATA, 1);
+    gpio_put(SCEX_DATA, 0);
     gpio_set_dir(SENS, GPIO_OUT);
     gpio_set_dir(LMTSW, GPIO_OUT);
     gpio_set_dir(XLAT, GPIO_IN);
