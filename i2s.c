@@ -290,8 +290,9 @@ abort_psnee:
             buffer_for_dma = (buffer_for_dma + 1) % 2;
             sector_sending = sector_loaded[buffer_for_dma];
 
-            dma_hw->ch[channel].read_addr = pio_samples[buffer_for_dma];
+            dma_hw->ch[channel].read_addr = (uint32_t)pio_samples[buffer_for_dma];
             dma_channel_start(channel);
         }
     }
 }
+
