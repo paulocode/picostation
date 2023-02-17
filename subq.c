@@ -32,29 +32,15 @@ void printf_subq(uint8_t *subqdata) {
 static inline void send_subq(uint8_t *subqdata) {
     subq_program_init(pio1, SUBQ_SM, subq_offset, SQSO, SQCK);
     pio_sm_set_enabled(pio1, SUBQ_SM, true);
-
-    uint sub1 = (reverseBits(subqdata[0],8) << 24) |
-                (reverseBits(subqdata[1],8) << 16) |
-                (reverseBits(subqdata[2],8) << 8) |
-                (reverseBits(subqdata[3],8));
-    uint sub2 = (reverseBits(subqdata[4],8) << 24) |
-                (reverseBits(subqdata[5],8) << 16) |
-                (reverseBits(subqdata[6],8) << 8) |
-                (reverseBits(subqdata[7],8));
-    uint sub3 = (reverseBits(subqdata[8],8) << 24) |
-                (reverseBits(subqdata[9],8) << 16) |
-                (reverseBits(subqdata[10],8) << 8) |
-                (reverseBits(subqdata[11],8));
-    pio_sm_put_blocking(pio1, SUBQ_SM, reverseBits(sub1,32));
-    pio_sm_put_blocking(pio1, SUBQ_SM, reverseBits(sub2,32));
-    pio_sm_put_blocking(pio1, SUBQ_SM, reverseBits(sub3,32));
-	
+    pio_sm_put_blocking(pio1, SUBQ_SM, (subqdata[3] << 24) | (subqdata[2] << 16) | (subqdata[1] << 8) | subqdata[0]);
+    pio_sm_put_blocking(pio1, SUBQ_SM, (subqdata[7] << 24) | (subqdata[6] << 16) | (subqdata[5] << 8) | subqdata[4]);
+    pio_sm_put_blocking(pio1, SUBQ_SM, (subqdata[11] << 24) | (subqdata[10] << 16) | (subqdata[9] << 8) | subqdata[8]);
     pio_sm_put_blocking(pio1, SCOR_SM, 1);
 
 }
 
 void start_subq() {
-    if (sector < 4500) {
+    if (sector < CD_LEADIN_LENGTH) {
         int subq_entry = sector%(3+num_logical_tracks);
 
         if (subq_entry == 0) {
@@ -72,7 +58,7 @@ void start_subq() {
             tracksubq[8] = 0x00;
             tracksubq[9] = 0x00;
         } else if (subq_entry == 2) {
-            int sector_lead_out = logical_track_to_sector[num_logical_tracks+1] - 4500;
+            int sector_lead_out = logical_track_to_sector[num_logical_tracks+1] - CD_LEADIN_LENGTH;
             tracksubq[0] = hasData ? 0x61 : 0x21;
             tracksubq[1] = 0x00;
             tracksubq[2] = 0xA2;
@@ -85,7 +71,7 @@ void start_subq() {
             if (logical_track == 1) {
                 sector_track = 150;
             } else {
-                sector_track = logical_track_to_sector[logical_track] - 4500;
+                sector_track = logical_track_to_sector[logical_track] - CD_LEADIN_LENGTH;
             }
             tracksubq[0] = is_data_track[logical_track] ? 0x41 : 0x01;
             tracksubq[1] = 0x00;
