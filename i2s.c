@@ -28,6 +28,9 @@ extern int *logical_track_to_sector;
 extern bool *is_data_track;
 extern mutex_t mechacon_mutex;
 
+void select_sens(uint8_t new_sens);
+void set_sens(uint8_t what, bool new_value);
+
 
 char SCExData[][44] = {
     {1,0,0,1,1,0,1,0,1,0,0,1,0,0,1,1,1,1,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0},
@@ -182,6 +185,7 @@ void i2s_data_thread() {
                 latched >>= 8;
                 latched |= c << 16;
             }
+            select_sens(latched >> 20);
             gpio_put(SENS, SENS_data[latched >> 20]);
             mutex_exit(&mechacon_mutex);
         }
