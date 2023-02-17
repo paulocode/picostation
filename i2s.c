@@ -27,10 +27,6 @@ extern volatile bool hasData;
 extern int *logical_track_to_sector;
 extern bool *is_data_track;
 extern mutex_t mechacon_mutex;
-extern uint8_t current_sens;
-
-extern void set_sens_output(uint8_t sens_output);
-extern void set_sens_level(uint8_t sens_output, bool new_level);
 
 
 char SCExData[][44] = {
@@ -119,7 +115,7 @@ void i2s_data_thread() {
     logical_track_to_sector = malloc(sizeof(int)*(num_logical_tracks+2));
     is_data_track = malloc(sizeof(bool)*(num_logical_tracks+2));
     logical_track_to_sector[0] = 0;
-    logical_track_to_sector[1] = CD_LEADIN_LENGTH;
+    logical_track_to_sector[1] = 4500;
 
     f_gets(buf, 128, &fil);
     while (1) {
@@ -149,7 +145,7 @@ void i2s_data_thread() {
         int ss = atoi(strtok(NULL, ":"));
         int ff = atoi(strtok(NULL, ":"));
         if (logical_track != 1) {
-            logical_track_to_sector[logical_track] = mm*60*75 + ss*75 + ff + CD_TRACK1_START;
+            logical_track_to_sector[logical_track] = mm*60*75 + ss*75 + ff + 4650;
         }
         printf("cue: %d %d %d %d\n", logical_track, mm, ss, ff);
     }
@@ -159,7 +155,7 @@ void i2s_data_thread() {
     if (FR_OK != fr && FR_EXIST != fr)
         panic("f_open(%s) error: (%d)\n", FRESULT_str(fr), fr);
 
-    logical_track_to_sector[num_logical_tracks+1] = f_size(&fil)/2352 + CD_TRACK1_START;
+    logical_track_to_sector[num_logical_tracks+1] = f_size(&fil)/2352 + 4650;
     is_data_track[num_logical_tracks+1] = 0;
     is_data_track[0] = 0;
 
@@ -186,8 +182,7 @@ void i2s_data_thread() {
                 latched >>= 8;
                 latched |= c << 16;
             }
-            set_sens_output(latched >> 20);
-            set_sens_level(current_sens, SENS_data[current_sens]);
+            gpio_put(SENS, SENS_data[latched >> 20]);
             mutex_exit(&mechacon_mutex);
         }
 
@@ -242,7 +237,7 @@ abort_psnee:
                 }
             }
             int cacheHit = -1;
-            int sector_to_search = sector_t < CD_TRACK1_START ? (sector_t % SECTOR_CACHE) + CD_TRACK1_START : sector_t;
+            int sector_to_search = sector_t < 4650 ? (sector_t % SECTOR_CACHE) + 4650 : sector_t;
             for (int i=0; i<SECTOR_CACHE; i++) {
                 if (cachedSectors[i] == sector_to_search) {
                     cacheHit = i;
@@ -251,7 +246,7 @@ abort_psnee:
             }
 
             if (cacheHit == -1) {
-                uint64_t seek_bytes = (sector_to_search-CD_TRACK1_START)*2352LL;
+                uint64_t seek_bytes = (sector_to_search-4650)*2352LL;
                 if (seek_bytes >= 0) {
                     fr = f_lseek(&fil, seek_bytes);
                     if (FR_OK != fr) {
@@ -268,7 +263,7 @@ abort_psnee:
                 roundRobinCacheIndex = (roundRobinCacheIndex + 1) % SECTOR_CACHE;
             }
 
-            if (sector_t >= CD_TRACK1_START) {
+            if (sector_t >= 4650) {
                 for (int i=0; i<CD_SAMPLES*2; i++) {
                     uint32_t i2s_data;
                     if (is_data_track[current_logical_track]) {

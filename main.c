@@ -42,7 +42,6 @@ int *logical_track_to_sector;
 bool *is_data_track;
 volatile int current_logical_track = 0;
 volatile int mode = 1;
-volatile uint8_t current_sens = 0;
 
 bool SENS_data[16] = {
     0,0,0,0,0,
@@ -134,18 +133,6 @@ void initialize() {
     pio_enable_sm_mask_in_sync(pio1, (1u << SCOR_SM) | (1u << MECHACON_SM));
 }
 
-void set_sens_output(uint8_t sens_output)
-{
-    current_sens = sens_output;
-}
-
-void set_sens_level(uint8_t sens_output, bool new_level)
-{
-    SENS_data[sens_output] = new_level;
-    if (sens_output == current_sens) {
-        gpio_put(SENS, new_level);
-    }
-}
 int main() {
     stdio_init_all();
 
@@ -156,15 +143,14 @@ int main() {
     uint64_t subq_delay_time = 0;
 
     while (true) {
-        gpio_put(LMTSW, sector > CD_LIMIT_SW);
+        gpio_put(LMTSW, sector > 3000);
         if (mutex_try_enter(&mechacon_mutex,0)) {
             while(!pio_sm_is_rx_fifo_empty(pio1, MECHACON_SM)) {
                 uint c = reverseBits(pio_sm_get_blocking(pio1, MECHACON_SM),8);
                 latched >>= 8;
                 latched |= c << 16;
             }
-            set_sens_output(latched >> 20);
-            set_sens_level(current_sens, SENS_data[current_sens]);
+            gpio_put(SENS, SENS_data[latched >> 20]);
             mutex_exit(&mechacon_mutex);
         }
 
@@ -239,7 +225,7 @@ int main() {
 
                 if ((track - original_track) >= count_track) {
                     original_track = track;
-                    set_sens_level(SENS_COUT, !SENS_data[SENS_COUT]);
+                    SENS_data[SENS_COUT] = !SENS_data[SENS_COUT];
                 }
             }
         } else if (sled_move_direction == SLED_MOVE_REVERSE) {
@@ -250,11 +236,11 @@ int main() {
                 sector_for_track_update = sector;
                 if ((original_track - track) >= count_track) {
                     original_track = track;
-                    set_sens_level(SENS_COUT, !SENS_data[SENS_COUT]);
+                    SENS_data[SENS_COUT] = !SENS_data[SENS_COUT];
                 }
             }
         } else if (SENS_data[SENS_GFS]) {
-            if (sector < CD_TRACK1_START && (time_us_64() - subq_start_time) > 13333) {
+            if (sector < 4650 && (time_us_64() - subq_start_time) > 13333) {
                 subq_start_time = time_us_64();
                 start_subq();
                 sector++;
@@ -277,7 +263,7 @@ int main() {
                     }
                 }
 
-                if (subq_delay && (sector >= CD_TRACK1_START && (time_us_64() - subq_delay_time) > 3333)) {
+                if (subq_delay && (sector >= 4650 && (time_us_64() - subq_delay_time) > 3333)) {
                     subq_delay = 0;
                     start_subq();
                 }

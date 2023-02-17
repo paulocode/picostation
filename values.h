@@ -62,11 +62,4 @@
 #define PSNEE_SECTOR_LIMIT 4500
 #define SECTOR_CACHE 50
 
-//
-// CD structure stuff
-#define CD_LEADIN_LENGTH    4500
-#define CD_PREGAP           150
-#define CD_TRACK1_START     (CD_LEADIN_LENGTH+CD_PREGAP)
-#define CD_LIMIT_SW         3000
-
 #endif
