@@ -35,7 +35,7 @@
 - 3D Printable mount (550X) by <a href="https://twitter.com/SadSnifit">@Sadsnifit</a> : https://www.printables.com/fr/model/407224-picostation-mount-for-scph-5502
 
 ### To-do
-- Resolve region unlock not always working
+- Resolve region unlock not always working: should be OK with commit <a href="https://github.com/paulocode/picostation/commit/babc0722b1dbb14aaa5118330c816ad6ce5f6fcf">babc072</a> (thanks to <a href="https://github.com/OldBoredEE/picostation">OldBoredEE</a>)
 - Stabilize image loading
 - Make an interface for image choice/loading
 - Make it possible to update the pico via SD card
