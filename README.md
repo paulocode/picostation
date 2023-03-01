@@ -8,8 +8,7 @@
 - PU-18 (SCPH55XX)
 
 ### Compatibility
-<br>
-<b>NOTE: rename your image to UNIROM.bin/.cue</b>
+<b>NOTE: rename your image to UNIROM.bin/.cue</b><br>
 - Audio CD image
 - UNIROM image
 - Some games may load (see <a href="https://github.com/paulocode/picostation/wiki/Game-Compatibility-List">Game Compatibility List</a> wiki page)
