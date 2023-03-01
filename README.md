@@ -10,7 +10,7 @@
 ### Compatibility
 - Audio CD image
 - UNIROM image
-- Some games MAY load (see <a href="https://github.com/paulocode/picostation/wiki/Game-Compatibility-List">Game Compatibility List</a>
+- Some games MAY load (see <a href="https://github.com/paulocode/picostation/wiki/Game-Compatibility-List">Game Compatibility List</a>)
 
 ### How-to
 - Assemble [PCB](https://github.com/paulocode/picostation_pcb)
