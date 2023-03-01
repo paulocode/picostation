@@ -8,34 +8,29 @@
 - PU-18 (SCPH55XX)
 
 ### Compatibility
+<br>
+<b>NOTE: rename your image to UNIROM.bin/.cue</b>
 - Audio CD image
 - UNIROM image
-- Some games MAY load (see <a href="https://github.com/paulocode/picostation/wiki/Game-Compatibility-List">Game Compatibility List</a>)
+- Some games may load (see <a href="https://github.com/paulocode/picostation/wiki/Game-Compatibility-List">Game Compatibility List</a> wiki page)
 
 ### How-to
-- Assemble [PCB](https://github.com/paulocode/picostation_pcb)
-- Solder [Xstation QSB](https://github.com/x-station/xstation-releases) (including pin lifting)
-- Double / triple check [each connection](https://mmmonkey.co.uk/xstation-sony-playstation-install-notes-and-pinout/), from the alt-point to the FFC connector point on the picostation board, [PCB pinout](https://ibb.co/mDNDc8C)
-- [Compile](https://shawnhymel.com/2096/how-to-set-up-raspberry-pi-pico-c-c-toolchain-on-windows-with-vs-code/) code, or use latest release
-- Upload picostation.uf2 to your Raspberry Pi Pico (press Bootsel while you plug usb cable)
-- Drop your bin/cue files on your SD Card (named UNIROM.bin / UNIROM.cue | UNIROM.cue must point to UNIROM.bin)
-- Insert SD Card into PCB
-- Boot your PS1, Enjoy
+- see <a href="https://github.com/paulocode/picostation/wiki/How-to">How-to</a> wiki page
 
 ### Notes
 - For the moment, Game/app loading is not consistent, you'll need to try several times
 - If using an out of region multi-track bin/cue, you may need to use freepsxboot to bypass the region check
+
+### To-do (see <a href="https://github.com/paulocode/picostation/issues">issues</a>)
+- Resolve region unlock not always working: should be OK for single track games with commit <a href="https://github.com/paulocode/picostation/commit/babc0722b1dbb14aaa5118330c816ad6ce5f6fcf">babc072</a> (thanks to <a href="https://github.com/OldBoredEE/picostation">OldBoredEE</a>)
+- Stabilize image loading
+- Make an interface for image choice/loading
+- Make it possible to update the pico via SD card
 
 ### Links
 - PCB: https://github.com/paulocode/picostation_pcb
 - FAQ: https://github.com/paulocode/picostation_faq
 - Slow Solder Board (SSB) solder points / checking connection: https://mmmonkey.co.uk/xstation-sony-playstation-install-notes-and-pinout/
 - How to compile (Windows): https://shawnhymel.com/2096/how-to-set-up-raspberry-pi-pico-c-c-toolchain-on-windows-with-vs-code/
-- PCB pinout: <a href="https://ibb.co/mDNDc8C"><img src="https://i.ibb.co/mDNDc8C/pinout.png" alt="pinout" border="0"></a>
+- PCB pinout: <a href="https://i.ibb.co/RvjvDyp/pinout.png"><img src="https://i.ibb.co/mDNDc8C/pinout.png" alt="pinout" border="0"></a>
 - 3D Printable mount (550X) by <a href="https://twitter.com/SadSnifit">@Sadsnifit</a> : https://www.printables.com/fr/model/407224-picostation-mount-for-scph-5502
-
-### To-do (see <a href="https://github.com/paulocode/picostation/issues">issues</a>
-- Resolve region unlock not always working: should be OK for single track games with commit <a href="https://github.com/paulocode/picostation/commit/babc0722b1dbb14aaa5118330c816ad6ce5f6fcf">babc072</a> (thanks to <a href="https://github.com/OldBoredEE/picostation">OldBoredEE</a>)
-- Stabilize image loading
-- Make an interface for image choice/loading
-- Make it possible to update the pico via SD card
