@@ -28,6 +28,9 @@ extern int *logical_track_to_sector;
 extern bool *is_data_track;
 extern mutex_t mechacon_mutex;
 
+void select_sens(uint8_t new_sens);
+void set_sens(uint8_t what, bool new_value);
+
 
 char SCExData[][44] = {
     {1,0,0,1,1,0,1,0,1,0,0,1,0,0,1,1,1,1,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0},
@@ -53,7 +56,7 @@ void i2s_data_thread() {
     sd_card_t *pSD;
     int bytes;
     char buf[128];
-    ushort *cd_samples[SECTOR_CACHE];
+    uint16_t *cd_samples[SECTOR_CACHE];
     uint16_t CD_scrambling_key[1176] = { 0 };
     int key = 1;
     int logical_track = 0;
@@ -182,6 +185,7 @@ void i2s_data_thread() {
                 latched >>= 8;
                 latched |= c << 16;
             }
+            select_sens(latched >> 20);
             gpio_put(SENS, SENS_data[latched >> 20]);
             mutex_exit(&mechacon_mutex);
         }
@@ -223,7 +227,7 @@ void i2s_data_thread() {
             }
 
 abort_psnee:
-            gpio_put(SCEX_DATA, 1);
+            gpio_put(SCEX_DATA, 0);
             psneeTimer = time_us_64();
             printf("-SCEX\n");
         }
@@ -290,8 +294,9 @@ abort_psnee:
             buffer_for_dma = (buffer_for_dma + 1) % 2;
             sector_sending = sector_loaded[buffer_for_dma];
 
-            dma_hw->ch[channel].read_addr = pio_samples[buffer_for_dma];
+            dma_hw->ch[channel].read_addr = (uint32_t)pio_samples[buffer_for_dma];
             dma_channel_start(channel);
         }
     }
 }
+

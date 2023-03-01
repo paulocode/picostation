@@ -37,6 +37,7 @@ volatile uint sector_sending = -1;
 volatile uint sector_for_track_update = 0;
 volatile uint64_t subq_start_time = 0;
 volatile uint64_t sled_timer = 0;
+volatile uint8_t current_sens;
 volatile int num_logical_tracks = 0;
 int *logical_track_to_sector;
 bool *is_data_track;
@@ -53,6 +54,18 @@ bool SENS_data[16] = {
     0,0,0
 };
 
+void select_sens(uint8_t new_sens)
+{
+    current_sens = new_sens;
+}
+
+void set_sens(uint8_t what, bool new_value)
+{
+    SENS_data[what] = new_value;
+    if (what == current_sens) {
+        gpio_put(SENS, new_value);
+    }
+}
 
 void initialize() {
     set_sys_clock_pll(948000000, 7, 1); // 135428571 Hz, 67714286 Hz PS1 clock
@@ -71,7 +84,7 @@ void initialize() {
     gpio_init(LRCK);
 
     gpio_set_dir(SCEX_DATA, GPIO_OUT);
-    gpio_put(SCEX_DATA, 1);
+    gpio_put(SCEX_DATA, 0);
     gpio_set_dir(SENS, GPIO_OUT);
     gpio_set_dir(LMTSW, GPIO_OUT);
     gpio_set_dir(XLAT, GPIO_IN);
@@ -150,6 +163,7 @@ int main() {
                 latched >>= 8;
                 latched |= c << 16;
             }
+            select_sens(latched >> 20);
             gpio_put(SENS, SENS_data[latched >> 20]);
             mutex_exit(&mechacon_mutex);
         }
@@ -225,7 +239,7 @@ int main() {
 
                 if ((track - original_track) >= count_track) {
                     original_track = track;
-                    SENS_data[SENS_COUT] = !SENS_data[SENS_COUT];
+                    set_sens(SENS_COUT, !SENS_data[SENS_COUT]);
                 }
             }
         } else if (sled_move_direction == SLED_MOVE_REVERSE) {
@@ -236,7 +250,7 @@ int main() {
                 sector_for_track_update = sector;
                 if ((original_track - track) >= count_track) {
                     original_track = track;
-                    SENS_data[SENS_COUT] = !SENS_data[SENS_COUT];
+                    set_sens(SENS_COUT, !SENS_data[SENS_COUT]);
                 }
             }
         } else if (SENS_data[SENS_GFS]) {
