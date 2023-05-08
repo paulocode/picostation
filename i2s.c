@@ -76,13 +76,13 @@ void i2s_data_thread() {
     }
 
     for (int i=6; i<1176; i++) {
-        char upper = key & 0xFF;
+        int upper = key & 0xFF;
         for(int j=0; j<8; j++) {
             int bit = ((key & 1)^((key & 2)>>1)) << 15;
             key = (bit | key) >> 1;
         }
 
-        char lower = key & 0xFF;
+        int lower = key & 0xFF;
 
         CD_scrambling_key[i] = (lower << 8) | upper;
 
